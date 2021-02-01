@@ -1,3 +1,5 @@
+# Shoarma spice mix
+
 - [ ] 1 garlicpowder
 - [ ] 0.5 mustard seed
 - [ ] 0.5 ginger
