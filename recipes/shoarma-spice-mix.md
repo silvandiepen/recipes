@@ -1,3 +1,8 @@
+---
+tags: spices,mix,shoarma,meat
+image: /assets/img/shoarma-spice-mix.jpg
+---
+
 # Shoarma spice mix
 
 - [ ] 1 garlicpowder
