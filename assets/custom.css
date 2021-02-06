@@ -11,6 +11,59 @@ body {
 }
 
 /*
+Archive Fix
+*/
+
+.archive--blog .archive__link {
+  display: flex;
+  align-items: center;
+  transition: transform var(--transition);
+}
+.archive--blog .archive__link:hover {
+  transform: scale(1.05);
+}
+.archive--blog .archive__image,
+.archive--blog .archive__image img {
+  width: 4em;
+  height: 4em;
+  border-radius: var(--border-radius);
+  object-fit: cover;
+}
+.archive--blog .archive__image:not(.archive__image--empty) + .archive__date {
+  margin-left: 1em;
+}
+.archive--blog .archive__image--empty {
+  display: none;
+}
+
+@media screen and (max-width: 720px) {
+  .archive--articles .archive__item {
+    width: 100%;
+  }
+}
+.archive--articles .archive__image--empty {
+  position: relative;
+  background-color: var(--accent);
+}
+.archive--articles .archive__image--empty::before {
+  content: "?";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+  font-size: 2em;
+  font-weight: bold;
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+  text-align: center;
+  background-color: var(--background);
+  border-radius: var(--border-radius);
+  color: var(--accent);
+}
+
+/*
  Task list
 */
 

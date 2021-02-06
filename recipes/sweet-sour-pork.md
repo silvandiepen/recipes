@@ -1,9 +1,13 @@
+---
+tags: asian, pork
+---
+
 # Sweet & sour pork
 
-A classic asian dish, which is so eady to make but tastes amazing.
+A classic asian dish, which is so ready to make but tastes amazing.
 
-- [ ] Pork 
-- [ ] Bellpepper
+- [ ] Pork
+- [ ] Bell pepper
 - [ ] Tomato paste
 - [ ] Onions
 - [ ] Sugar

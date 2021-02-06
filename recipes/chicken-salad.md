@@ -1,5 +1,5 @@
 ---
-tags: chicken,salad
+tags: chicken,salad,armenian
 image: /assets/img/chicken-salad.jpg
 ---
 
