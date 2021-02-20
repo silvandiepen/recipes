@@ -6,8 +6,9 @@
 - [ ] 1x Freshly grounded peper
 - [ ] 1x Salt
 - [ ] 1x Coriander
-- [ ] 1x Curcuma
-- [ ] 1x Cayenne
-- [ ] 0.5 Cardamom
-- [ ] 0.5 Foelie
-- [ ] 0.5 Fenegreek
+- [ ] 1x Tumuric
+- [ ] 0.5x Cayenne
+- [ ] 0.25x Cinnamon
+- [ ] 0.33x Cumin
+- [ ] 0.25x Mace
+- [ ] 0.5x Fenugreek
