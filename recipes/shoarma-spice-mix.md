@@ -8,14 +8,14 @@ image: /assets/img/shoarma-spice-mix.jpg
 - [ ] 1 garlicpowder
 - [ ] 0.5 mustard seed
 - [ ] 0.5 ginger
-- [ ] .75 cayenne
-- [ ] 0.5 cloves
+- [ ] 0.33 cayenne
+- [ ] 0.25 cloves
 - [ ] 0.5 black pepper
-- [ ] 0.5 cinnamon
+- [ ] 0.33 cinnamon
 - [ ] 1 tumuric
 - [ ] 1.5 cumin
 - [ ] 1 coriander
 - [ ] 5 paprika
-- [ ] 0.5 chili
-- [ ] 0.5 fennel
+- [ ] 0.25 chili
+- [ ] 0.5 grounded fennel
 - [ ] 3 salt
