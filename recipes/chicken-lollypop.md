@@ -1,0 +1,8 @@
+- [ ] ketjap manis
+- [ ] Salt
+- [ ] pinch of rosemary
+- [ ] Paprika powder
+- [ ] Garlic powder
+- [ ] Ketchup
+- [ ] Ground cumin
+- [ ] Ground coriander
