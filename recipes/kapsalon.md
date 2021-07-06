@@ -1,3 +1,8 @@
+---
+tags: pork,shoarma,dutch
+image: /assets/img/kapsalon.jpg
+---
+
 # Kapsalon
 
 A dutch classic, which is taken over the world, but in a way better version.
