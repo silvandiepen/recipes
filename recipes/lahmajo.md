@@ -1,3 +1,10 @@
+---
+tags: meat,pizza,armenian
+image: /assets/img/lahmajo-prepared.jpg
+---
+
+# Lahmajo
+
 Lahmajo, or also.. "Armenian Pizza", a dish which has its arabic origins. I love it and it's hard to get here, or made with lamb, which Yeva is not a big fan of. That's why I just started to make it myself, over and over again trying to perfect it. 
 
 No exact measurements, because I just do something, whatever I feel right about.
