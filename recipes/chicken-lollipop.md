@@ -1,7 +1,6 @@
 ---
 tags: oven,chicken,spiced
-image: 	
-/assets/img/chicken-lollipop.jpg
+image: /assets/img/chicken-lollipop.jpg
 ---
 
 # Chicken Lollipops
