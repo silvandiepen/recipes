@@ -1,3 +1,9 @@
+---
+tags: spices,mix,gyros,meat
+---
+
+# Gyros spice mix (red)
+
 - [ ] 3 dried oregano
 - [ ] 3 garlic powder
 - [ ] 1 smoked paprika
