@@ -1,8 +1,12 @@
 [color-mode="light"] .content {
   --stil-accent: #f5f1d3;
+  --stil-background-accent: #0a2531;
+  --stil-foreground-accent: #f5f1d3;
 }
 [color-mode="dark"] .content {
   --stil-accent: #0a2531;
+  --stil-background-accent: #f5f1d3;
+  --stil-foreground-accent: #0a2531;
 }
 body {
   --stil-border-radius: 1em;
