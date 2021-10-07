@@ -1,15 +1,15 @@
 [color-mode="light"] .content {
-  --accent: #f5f1d3;
+  --stil-accent: #f5f1d3;
 }
 [color-mode="dark"] .content {
-  --accent: #0a2531;
+  --stil-accent: #0a2531;
 }
 body {
-  --border-radius: 1em;
-  --secondary: #ffbb00;
-  --primary: #10b468;
-  --dark: #041720;
-  --light: #fffce5;
+  --stil-border-radius: 1em;
+  --stil-secondary: #ffbb00;
+  --stil-primary: #10b468;
+  --stil-dark: #041720;
+  --stil-light: #fffce5;
 }
 .navigation__text::before {
   content: "";
