@@ -1,13 +1,15 @@
 [color-mode="light"] .content {
-  --accent: #f2f2f2;
+  --accent: #f5f1d3;
 }
 [color-mode="dark"] .content {
-  --accent: #333333;
+  --accent: #0a2531;
 }
 body {
   --border-radius: 1em;
   --secondary: #ffbb00;
   --primary: #10b468;
+  --dark: #041720;
+  --light: #fffce5;
 }
 .navigation__text::before {
   content: "";
