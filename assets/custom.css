@@ -3,9 +3,9 @@ body {
   --stil-secondary: #ffbb00;
   --stil-primary: #10b468;
   --stil-dark: #041720;
-  --stil-dark-accent: #f5f1d3;
+  --stil-dark-accent: #0a2531;
   --stil-light: #fffce5;
-  --stil-light-accent: #0a2531;
+  --stil-light-accent: #f5f1d3;
 }
 .navigation__text::before {
   content: "";
