@@ -1,6 +1,7 @@
 ---
 projectStyle: /assets/custom.css
-projectTitle: Cooking with Sil & Yeva
+projectTitle: Cooking with Sil
+projectLogo: /assets/logo.svg
 hide: true
 ---
 
