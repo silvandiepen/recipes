@@ -8,5 +8,5 @@ image: /assets/img/pork-barbecue.jpg
 Or Hay Khorovatz as they would call it in Armenia.
 
 - [ ] Pork collar boneless
-- [ ] Armenian spice mix
+- [ ] [Armenian spice mix](https://recipes.sil.mt/spice/armenian-barbecue/)
 - [ ] Onion
