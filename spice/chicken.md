@@ -1,3 +1,7 @@
+---
+tags: spices,mix,chicken
+---
+
 # Chicken spice mix
 
 

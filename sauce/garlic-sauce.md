@@ -1,3 +1,7 @@
+---
+tags: sauce,garlic
+---
+
 # Garlic sauce
 
 - [ ] Greek Yogurt

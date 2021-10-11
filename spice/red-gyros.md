@@ -1,5 +1,5 @@
 ---
-tags: spices,mix,gyros,meat
+tags: spices,mix,gyros,meat,greek
 ---
 
 # Gyros spice mix (red)

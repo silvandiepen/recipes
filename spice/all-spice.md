@@ -1,4 +1,8 @@
-All spice
+---
+tags: spices,mix,caribbean,allspice,meat
+---
+
+# All spice
 
 The famous caribbean all spice mix. 
 
