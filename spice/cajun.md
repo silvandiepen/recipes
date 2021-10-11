@@ -2,7 +2,7 @@
 tags: spices,mix,cajun,meat
 ---
 
-# Cajun spice mix
+# Cajun
 
 - [ ] 2 dried oregano
 - [ ] 2 salt

@@ -2,7 +2,7 @@
 tags: spices,mix,chicken
 ---
 
-# Chicken spice mix
+# Chicken
 
 
 - [ ] 1x Smoked paprika

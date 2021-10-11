@@ -1,5 +1,6 @@
 ---
 tags: meat, shoarma, chicken, pork
+image: /assets/img/shoarma.jpg
 ---
 
 # Shoarma

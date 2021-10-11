@@ -1,9 +1,9 @@
 ---
 tags: spices,mix,shoarma,meat
-image: /assets/img/shoarma-spice-mix.jpg
+image: /assets/img/shoarma.jpg
 ---
 
-# Shoarma spice mix
+# Shoarma
 
 - [ ] 1 garlicpowder
 - [ ] 0.5 mustard seed
