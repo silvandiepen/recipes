@@ -1,3 +1,7 @@
+---
+tags: spices,barbecue,pork,armenian
+---
+
 # Armenian Barbecue - Khorovatz
 
 - [ ] 3     Paprika powder
