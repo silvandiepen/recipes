@@ -1,5 +1,5 @@
 ---
-tags: mexican, chicken
+tags: mexican, chicken, spices, mix
 ---
 
 # Mexican Chicken
