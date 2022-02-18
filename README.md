@@ -1,5 +1,5 @@
 ---
-projectStyle: /assets/custom.css
+projectStyle: /assets/custom.scss
 projectTitle: Cooking with Sil
 projectLogo: assets/logo.svg
 hide: true
