@@ -1,5 +1,4 @@
 @import url("https://fonts.googleapis.com/css2?family=Domine:wght@700&display=swap");
-
 :root {
   --heading-font: "domine";
   --ol-h1-heading-font-family: var(--heading-font);
@@ -7,8 +6,8 @@
   --ol-h3-heading-font-family: var(--heading-font);
   --ol-h4-heading-font-family: var(--heading-font);
   --ol-h5-heading-font-family: var(--heading-font);
-  --ol-primary-rgb: #{rgbValues(#8b9248)};
-  --ol-secondary-rgb: #{rgbValues(#1490c9)};
-  --ol-dark-rgb: #{rgbValues(#0b042e)};
-  --ol-light-rgb: #{rgbValues(#f7f6ef)};
+  --ol-primary-rgb: 255, 187, 0;
+  --ol-secondary-rgb: 20, 144, 201;
+  --ol-dark-rgb: 4, 23, 32;
+  --ol-light-rgb: 255, 252, 229;
 }
