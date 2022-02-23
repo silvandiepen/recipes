@@ -1,6 +1,5 @@
 ---
-type: blog
-isArchive: true
+archive: blog
 ---
 
 # Blog

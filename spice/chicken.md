@@ -4,8 +4,12 @@ tags: spices,mix,chicken
 
 # Chicken
 
+Whenever we eat chicken, a variation of this spice mix will be usually used. Perfect for on the fried chicken.
 
-- [ ] 1x Smoked paprika
+Fry the chicken, and afterwards coat it with this spice mix.
+
+- [ ] 0.5x Smoked paprika
+- [ ] 1x Paprika
 - [ ] 1x Gingerpowder
 - [ ] 1x Freshly grounded peper
 - [ ] 1x Salt

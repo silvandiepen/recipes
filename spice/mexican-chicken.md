@@ -4,6 +4,8 @@ tags: mexican, chicken, spices, mix
 
 # Mexican Chicken
 
+A mexican style twist on the chicken, it's actually really easy. 
+
 - [ ] 1x cumin
 - [ ] 1x coriander
 - [ ] 1x paprika

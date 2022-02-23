@@ -6,8 +6,8 @@
   --ol-h3-heading-font-family: var(--heading-font);
   --ol-h4-heading-font-family: var(--heading-font);
   --ol-h5-heading-font-family: var(--heading-font);
-  --ol-primary-rgb: 255, 187, 0;
+  --ol-primary-rgb: 139, 146, 72;
   --ol-secondary-rgb: 20, 144, 201;
-  --ol-dark-rgb: 4, 23, 32;
-  --ol-light-rgb: 255, 252, 229;
+  --ol-dark-rgb: 11, 4, 46;
+  --ol-light-rgb: 247, 246, 239;
 }

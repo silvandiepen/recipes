@@ -4,7 +4,9 @@ tags: spices,mix,cajun,meat
 
 # Cajun
 
-- [ ] 2 dried oregano
+The spice for everything; cajun. It doesnt matter what you put it on, it will taste good.
+
+- [ ] 1 dried oregano
 - [ ] 2 salt
 - [ ] 2 garlic powder
 - [ ] 1 black pepper

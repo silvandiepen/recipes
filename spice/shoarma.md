@@ -5,10 +5,11 @@ image: /assets/img/shoarma.jpg
 
 # Shoarma
 
+My all time favorite, a spicemix which keeps being updated and improved.
+
 - [ ] 1 garlicpowder
 - [ ] 0.5 mustard seed
 - [ ] 0.5 ginger
-- [ ] 0.1 cayenne
 - [ ] 0.1 chili
 - [ ] 0.25 cloves
 - [ ] 0.5 black pepper

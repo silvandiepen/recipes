@@ -4,6 +4,8 @@ tags: spices,mix,gyros,meat,greek
 
 # Red Gyros
 
+There are many variaties of "Gyros spice" this was inspired by my local "Gyros dealer". 
+
 - [ ] 3 dried oregano
 - [ ] 3 garlic powder
 - [ ] 1 smoked paprika
