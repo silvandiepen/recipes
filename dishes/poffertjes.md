@@ -1,5 +1,6 @@
 ---
 tags: dessert,dutch
+image: /assets/img/poffertjes.jpg
 ---
 
 # Poffertjes
