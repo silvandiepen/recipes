@@ -9,3 +9,5 @@ tags: sauce,tzaziki,greek
 - [ ] Cucumber 
 - [ ] Black pepper
 - [ ] Salt
+
+Yes, real Tzaziki should have also some dille, but I hate dille, so I don't use it :)
