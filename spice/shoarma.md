@@ -7,17 +7,17 @@ image: /assets/img/shoarma.jpg
 
 My all time favorite, a spicemix which keeps being updated and improved.
 
-- [ ] 1 garlicpowder
-- [ ] 0.5 mustard seed
-- [ ] 0.5 ginger
-- [ ] 0.1 chili
-- [ ] 0.25 cloves
-- [ ] 0.5 black pepper
-- [ ] 0.33 cinnamon
-- [ ] 1 tumuric
-- [ ] 1.5 cumin
-- [ ] 1 coriander
-- [ ] 0.5 sumak
-- [ ] 5 paprika
-- [ ] 0.5 grounded fennel
-- [ ] 3 salt
+- [ ] 1x garlicpowder
+- [ ] 0.5x mustard seed
+- [ ] 0.5x ginger
+- [ ] 0.1x chili
+- [ ] 0.25x cloves
+- [ ] 0.5x black pepper
+- [ ] 0.33x cinnamon
+- [ ] 1x tumuric
+- [ ] 1.5x cumin
+- [ ] 1x coriander
+- [ ] 0.5x sumak
+- [ ] 5x paprika
+- [ ] 0.5x grounded fennel
+- [ ] 3x salt

@@ -4,14 +4,14 @@ tags: spices,mix,indian,garam masala
 
 # Garam Masala
 
-- [ ] 4 cumin seeds
-- [ ] 1 fennel seeds
-- [ ] 1 black pepper
-- [ ] 1 cardamom
-- [ ] 0.50 black cardamom
-- [ ] 0.50 cinnamon
-- [ ] 2 star anise
-- [ ] 8 cloves
-- [ ] 0.50 nutmeg
-- [ ] 0.25 mace
-- [ ] 2 curry leaves  
+- [ ] 4x    cumin seeds
+- [ ] 1x    fennel seeds
+- [ ] 1x    black pepper
+- [ ] 1x    cardamom
+- [ ] 0.50x black cardamom
+- [ ] 0.50x cinnamon
+- [ ] 2x    star anise
+- [ ] 8x    cloves
+- [ ] 0.50x nutmeg
+- [ ] 0.25x mace
+- [ ] 2x    curry leaves  

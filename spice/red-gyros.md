@@ -6,16 +6,16 @@ tags: spices,mix,gyros,meat,greek
 
 There are many variaties of "Gyros spice" this was inspired by my local "Gyros dealer". 
 
-- [ ] 3 dried oregano
-- [ ] 3 garlic powder
-- [ ] 1 smoked paprika
-- [ ] 1 paprika
-- [ ] 0.5 mild chili powder
-- [ ] 2 onion powder
-- [ ] 4 freshly ground black pepper
-- [ ] 4 dried parsley flakes
-- [ ] 3 salt
-- [ ] 1.5 thyme
-- [ ] 1.5 rosemary
-- [ ] 0.33 cinnamon
-- [ ] 0.33 mace (or nutmeg)
+- [ ] 3x     dried oregano
+- [ ] 3x     garlic powder
+- [ ] 1x     smoked paprika
+- [ ] 1x     paprika
+- [ ] 0.5x   mild chili powder
+- [ ] 2x     onion powder
+- [ ] 4x     freshly ground black pepper
+- [ ] 4x     dried parsley flakes
+- [ ] 3x     salt
+- [ ] 1.5x   thyme
+- [ ] 1.5x   rosemary
+- [ ] 0.33x  cinnamon
+- [ ] 0.33x  mace (or nutmeg)
