@@ -6,9 +6,9 @@ tags: spices,mix,adobo,latin
 
 The spice mix for latin dishes.
 
-- [ ] __3x__    garlic powder
-- [ ] __1x__    turmeric
-- [ ] __1x__    oregano
-- [ ] __0.5x__  black pepper
-- [ ] __1x__    ground coriander
-- [ ] __1x__    cumin
+- [ ] 3x    garlic powder
+- [ ] 1x    turmeric
+- [ ] 1x    oregano
+- [ ] 0.5x  black pepper
+- [ ] 1x    ground coriander
+- [ ] 1x    cumin

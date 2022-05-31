@@ -6,11 +6,11 @@ tags: spices,barbecue,pork,armenian
 
 Armenian food is the basis of most of what we want to eat. The khorovatz (barbeque) is the staple of Armenian cuisine. This is our version of the basic spice mix for pork or anything which goes onto our barbeque.
 
-- [ ] __3x__     Paprika powder
-- [ ] __2x__     Course Salt
-- [ ] __1x__     Black pepper
-- [ ] __1x__     Garlic Powder
-- [ ] __1x__     Coriander powder
-- [ ] __1x__     Oregano
-- [ ] __0.5x__   Cayenne powder
-- [ ] __0.5x__   Smoked Paprika powder
+- [ ] 3x     Paprika powder
+- [ ] 2x     Course Salt
+- [ ] 1x     Black pepper
+- [ ] 1x     Garlic Powder
+- [ ] 1x     Coriander powder
+- [ ] 1x     Oregano
+- [ ] 0.5x   Cayenne powder
+- [ ] 0.5x   Smoked Paprika powder

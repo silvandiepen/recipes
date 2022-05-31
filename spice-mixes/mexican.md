@@ -1,8 +1,8 @@
 # Mexican
 
-- [ ] __1x__    cumin
-- [ ] __1x__    coriander
-- [ ] __1x__    paprika
-- [ ] __1x__    oregano
-- [ ] __1x__    garlic powder
-- [ ] __0.5x__  chili
+- [ ] 1x    cumin
+- [ ] 1x    coriander
+- [ ] 1x    paprika
+- [ ] 1x    oregano
+- [ ] 1x    garlic powder
+- [ ] 0.5x  chili
