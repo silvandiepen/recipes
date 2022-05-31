@@ -2,7 +2,7 @@
 projectStyle: /assets/custom.scss
 projectTitle: Cooking with Sil
 projectLogo: assets/logo.svg
-projectDescription: Cooking with Sil, my own recipe reference..shared online
+projectDescription: Cooking with Sil - my own recipe reference.. shared online
 sectionType: intro
 bodyBackground: /assets/img/spices.jpg
 hide: true
