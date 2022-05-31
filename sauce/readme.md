@@ -1,5 +1,7 @@
 ---
 archive: articles
+sectionBackground: /assets/img/sauces.jpg
+sectionType: intro
 ---
 
 # Sauces

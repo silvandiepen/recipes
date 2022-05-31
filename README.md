@@ -2,6 +2,8 @@
 projectStyle: /assets/custom.scss
 projectTitle: Cooking with Sil
 projectLogo: assets/logo.svg
+sectionType: intro
+bodyBackground: /assets/img/spices.jpg
 hide: true
 ---
 

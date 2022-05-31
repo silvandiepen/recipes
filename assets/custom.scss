@@ -2,13 +2,13 @@
 
 :root {
   --heading-font: "domine";
-  --ol-h1-heading-font-family: var(--heading-font);
-  --ol-h2-heading-font-family: var(--heading-font);
-  --ol-h3-heading-font-family: var(--heading-font);
-  --ol-h4-heading-font-family: var(--heading-font);
-  --ol-h5-heading-font-family: var(--heading-font);
-  --ol-primary-rgb: #{rgbValues(#8b9248)};
-  --ol-secondary-rgb: #{rgbValues(#1490c9)};
-  --ol-dark-rgb: #{rgbValues(#0b042e)};
-  --ol-light-rgb: #{rgbValues(#f7f6ef)};
+  --gtr-h1-heading-font-family: var(--heading-font);
+  --gtr-h2-heading-font-family: var(--heading-font);
+  --gtr-h3-heading-font-family: var(--heading-font);
+  --gtr-h4-heading-font-family: var(--heading-font);
+  --gtr-h5-heading-font-family: var(--heading-font);
+  --gtr-primary-rgb: #{rgbValues(#8b9248)};
+  --gtr-secondary-rgb: #{rgbValues(#1490c9)};
+  --gtr-dark-rgb: #{rgbValues(#0b042e)};
+  --gtr-light-rgb: #{rgbValues(#f7f6ef)};
 }
