@@ -1,6 +1,6 @@
 ---
 tags: barbecue,pork,armenian
-image: /assets/img/pork-barbecue.jpg
+image: /assets/img/khorovatz.jpg
 ---
 
 # Pork Barbecue
