@@ -11,7 +11,7 @@ Fry the chicken, and afterwards coat it with this spice mix.
 - [ ] 2x        Paprika
 - [ ] 1x        Gingerpowder
 - [ ] 1x        Freshly grounded peper
-- [ ] 1x        Salt
+- [ ] 1.5x        Salt
 - [ ] 1x        Coriander
 - [ ] 1x        Tumuric
 - [ ] 1x        Onion powder
