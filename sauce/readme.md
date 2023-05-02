@@ -2,6 +2,7 @@
 archive: articles
 sectionBackground: /assets/img/sauces.jpg
 sectionType: intro
+icon: 🥫
 ---
 
 # Sauces

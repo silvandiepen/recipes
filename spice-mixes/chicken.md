@@ -8,16 +8,13 @@ Whenever we eat chicken, a variation of this spice mix will be usually used. Per
 
 Fry the chicken, and afterwards coat it with this spice mix.
 
-- [ ] 2x        Paprika
-- [ ] 1x        Gingerpowder
-- [ ] 1x        Freshly grounded peper
-- [ ] 1.5x        Salt
-- [ ] 1x        Coriander
-- [ ] 1x        Tumuric
-- [ ] 1x        Onion powder
-- [ ] 0.5x      Cardamom
-- [ ] 0.5x      Celery seeds
-- [ ] 0.5x      Smoked paprika
-- [ ] 0.5x      Chilly flakes
-- [ ] 0.5x      Fenugreek
-- [ ] 0.5x      Cumin
+- [ ] 2x Garlic Powder
+- [ ] 2x Sea Salt
+- [ ] 1.5x Freshly grounded Pepper
+- [ ] 1x Paprika
+- [ ] 1x Coriander
+- [ ] 1x Onion Powder
+- [ ] 0.5x Gingerpowder
+- [ ] 0.5x Tumuric
+- [ ] 0.5x Fenugreek
+- [ ] 0.25x Cardemom

@@ -2,6 +2,7 @@
 archive: articles
 sectionBackground: /assets/img/khorovatz.jpg
 sectionType: intro
+icon: 🍽️
 ---
 
 # Dishes
