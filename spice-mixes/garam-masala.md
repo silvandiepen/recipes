@@ -5,6 +5,8 @@ image: /assets/img/garam-masala.png
 
 # Garam Masala
 
+A staple in Indian cuisine, here's my version of it. 
+
 - [ ] 8x    cloves
 - [ ] 4x    cumin seeds
 - [ ] 2x    star anise
