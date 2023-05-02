@@ -1,6 +1,7 @@
 ---
 title: Sweet & sour pork
 tags: asian, pork
+image: /assets/img/sweet-sour-pork.png
 ---
 
 # Sweet & sour pork

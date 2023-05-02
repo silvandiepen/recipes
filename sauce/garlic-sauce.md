@@ -1,5 +1,6 @@
 ---
 tags: sauce,garlic
+image: /assets/img/garlic-sauce.png
 ---
 
 # Garlic sauce

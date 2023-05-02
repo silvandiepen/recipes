@@ -1,5 +1,6 @@
 ---
 tags: sauce,tzaziki,greek
+image: /assets/img/tzaziki.png
 ---
 
 # Tzaziki
