@@ -1,5 +1,6 @@
 ---
 tags: spices,mix,cajun,meat
+image: /assets/img/cajun.png
 ---
 
 # Cajun

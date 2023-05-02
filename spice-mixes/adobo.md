@@ -1,5 +1,6 @@
 ---
 tags: spices,mix,adobo,latin
+image: /assets/img/adobo.png
 ---
 
 # Adobo 

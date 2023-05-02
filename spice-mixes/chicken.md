@@ -1,5 +1,6 @@
 ---
 tags: spices,mix,chicken
+image: /assets/img/chicken-spice-mix.png
 ---
 
 # Chicken

@@ -1,5 +1,6 @@
 ---
 tags: spices,barbecue,pork,armenian
+image: /assets/img/khorovatz.png
 ---
 
 # Armenian Barbecue - Khorovatz
@@ -9,8 +10,3 @@ Armenian food is the basis of most of what we want to eat. The khorovatz (barbeq
 - [ ] 3x     Paprika powder
 - [ ] 2x     Course Salt
 - [ ] 1x     Black pepper
-- [ ] 1x     Garlic Powder
-- [ ] 1x     Coriander powder
-- [ ] 1x     Oregano
-- [ ] 0.5x   Cayenne powder
-- [ ] 0.5x   Smoked Paprika powder

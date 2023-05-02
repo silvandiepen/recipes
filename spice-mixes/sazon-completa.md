@@ -1,5 +1,6 @@
 ---
 tags: spices,mix,caribbean,allspice,meat
+image: /assets/img/caribbean.png
 ---
 
 # Caribbean Spice Mix

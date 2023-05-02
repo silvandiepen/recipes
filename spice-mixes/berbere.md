@@ -1,5 +1,6 @@
 ---
 tags: spices,mix,berbere,ethiopian
+image: /assets/img/berbere.png
 ---
 
 # Berbere

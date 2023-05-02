@@ -1,3 +1,8 @@
+---
+
+image: /assets/img/mexican-spice-mix.png
+---
+
 # Mexican
 
 - [ ] 1x    cumin

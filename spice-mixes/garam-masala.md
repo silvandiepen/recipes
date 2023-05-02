@@ -1,5 +1,6 @@
 ---
 tags: spices,mix,indian,garam masala
+image: /assets/img/garam-masala.png
 ---
 
 # Garam Masala
