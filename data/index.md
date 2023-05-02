@@ -1,4 +1,5 @@
 ---
+icon: 🥩
 archive: articles
 ---
 

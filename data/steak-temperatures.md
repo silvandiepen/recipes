@@ -1,5 +1,8 @@
-# Steak Temperatures
+---
+image: /assets/img/steak-cut.png
+---
 
+# Steak Temperatures
 
 - Rare: 40°
 - Medium Rare: 45°
