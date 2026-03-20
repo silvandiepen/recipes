@@ -1,0 +1,329 @@
+name: Emila Content Change
+
+on:
+  workflow_dispatch:
+    inputs:
+      clientId:
+        required: true
+        type: string
+      jobId:
+        required: true
+        type: string
+      revisionId:
+        required: true
+        type: string
+      senderEmail:
+        required: true
+        type: string
+      requestText:
+        required: true
+        type: string
+      contentBranch:
+        required: true
+        type: string
+      productionBranch:
+        required: true
+        type: string
+      editablePaths:
+        required: true
+        type: string
+      defaultLanguage:
+        required: true
+        type: string
+      supportedLanguages:
+        required: true
+        type: string
+      installCommand:
+        required: false
+        type: string
+      buildCommand:
+        required: false
+        type: string
+      outputDirectory:
+        required: true
+        type: string
+      previewUrl:
+        required: true
+        type: string
+      editRequestUrl:
+        required: true
+        type: string
+      previewResetUrl:
+        required: true
+        type: string
+      previewUploadUrl:
+        required: true
+        type: string
+      workflowToken:
+        required: true
+        type: string
+      platformCallbackUrl:
+        required: true
+        type: string
+      platformCallbackToken:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  apply-content-change:
+    runs-on: ubuntu-latest
+    env:
+      EMILA_BRANCH: emila/${{ inputs.jobId }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+
+      - name: Prepare content branch
+        shell: bash
+        run: |
+          git fetch origin "${{ inputs.productionBranch }}" "$EMILA_BRANCH" || true
+          if git show-ref --verify --quiet "refs/remotes/origin/$EMILA_BRANCH"; then
+            git checkout -B "$EMILA_BRANCH" "origin/$EMILA_BRANCH"
+          else
+            git checkout -B "$EMILA_BRANCH" "origin/${{ inputs.productionBranch }}"
+          fi
+
+      - name: Seed fallback workflow result
+        shell: bash
+        run: |
+          mkdir -p .emila
+          cat <<'JSON' > .emila/result.json
+          {
+            "status": "ambiguous",
+            "summary": "Emila did not receive a valid edit result from the AI endpoint.",
+            "changedFiles": [],
+            "files": [],
+            "ambiguityReason": "AI edit request did not complete."
+          }
+          JSON
+
+      - name: Collect editable files for Emila
+        shell: bash
+        run: |
+          python3 <<'PY'
+          import glob
+          import json
+          import os
+
+          with open(".emila/editable-paths.json", "w", encoding="utf-8") as handle:
+              handle.write('${{ inputs.editablePaths }}')
+
+          patterns = json.loads('${{ inputs.editablePaths }}')
+          seen = set()
+          files = []
+
+          for pattern in patterns:
+              for path in glob.glob(pattern, recursive=True):
+                  if path in seen or not os.path.isfile(path):
+                      continue
+                  seen.add(path)
+                  try:
+                      with open(path, "r", encoding="utf-8") as file_handle:
+                          files.append({
+                              "path": path,
+                              "content": file_handle.read()
+                          })
+                  except UnicodeDecodeError:
+                      continue
+
+          with open(".emila/files.json", "w", encoding="utf-8") as handle:
+              json.dump(files, handle)
+
+          with open(".emila/repository-tree.json", "w", encoding="utf-8") as handle:
+              json.dump(os.popen("git ls-files").read().splitlines(), handle)
+          PY
+
+      - name: Request Emila edit
+        shell: bash
+        run: |
+          jq -n             --arg workflowToken "${{ inputs.workflowToken }}"             --arg requestText "${{ inputs.requestText }}"             --slurpfile repositoryTree .emila/repository-tree.json             --slurpfile files .emila/files.json             '{
+              workflowToken: $workflowToken,
+              requestText: $requestText,
+              repositoryTree: ($repositoryTree[0] // []),
+              files: ($files[0] // [])
+            }'             | curl -fsSL -X POST "${{ inputs.editRequestUrl }}"               -H "Content-Type: application/json"               --data-binary @-               > .emila/result.json
+
+      - name: Apply Emila file changes
+        shell: bash
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+
+          with open(".emila/result.json", "r", encoding="utf-8") as handle:
+              result = json.load(handle)
+
+          for file in result.get("files", []):
+              path = file["path"]
+              os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+              with open(path, "w", encoding="utf-8") as file_handle:
+                  file_handle.write(file["content"])
+          PY
+
+      - name: Commit and push if content changed
+        id: commit
+        shell: bash
+        run: |
+          git config user.name "emila.dev"
+          git config user.email "content@emila.dev"
+
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "chore(content): apply email request for ${{ inputs.clientId }} ${{ inputs.jobId }}"
+          fi
+
+          git push origin "HEAD:$EMILA_BRANCH"
+          echo "branch_name=$EMILA_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build preview output
+        id: build_preview
+        shell: bash
+        run: |
+          STATUS=$(jq -r '.status // "preview_ready"' .emila/result.json)
+
+          if [ "$STATUS" != "preview_ready" ]; then
+            echo "Skipping preview build because workflow status is $STATUS."
+            exit 0
+          fi
+
+          if [ -n "${{ inputs.installCommand }}" ]; then
+            eval "${{ inputs.installCommand }}"
+          elif [ -f pnpm-lock.yaml ]; then
+            corepack enable
+            pnpm install --frozen-lockfile
+          elif [ -f package-lock.json ]; then
+            npm ci
+          elif [ -f yarn.lock ]; then
+            corepack enable
+            yarn install --frozen-lockfile
+          fi
+
+          if [ -n "${{ inputs.buildCommand }}" ]; then
+            eval "${{ inputs.buildCommand }}"
+          elif [ -f pnpm-lock.yaml ]; then
+            pnpm build
+          elif [ -f package.json ]; then
+            npm run build
+          elif [ -f yarn.lock ]; then
+            yarn build
+          else
+            echo "No build command could be resolved for this repository." >&2
+            exit 1
+          fi
+
+          if [ ! -d "${{ inputs.outputDirectory }}" ]; then
+            echo "Configured output directory ${{ inputs.outputDirectory }} does not exist after the build." >&2
+            exit 1
+          fi
+
+      - name: Upload preview assets
+        id: upload_preview
+        shell: bash
+        run: |
+          STATUS=$(jq -r '.status // "preview_ready"' .emila/result.json)
+
+          if [ "$STATUS" != "preview_ready" ]; then
+            echo "Skipping preview upload because workflow status is $STATUS."
+            exit 0
+          fi
+
+          curl -fsSL -X POST "${{ inputs.previewResetUrl }}"             -H "Content-Type: application/json"             -d "$(jq -n               --arg workflowToken "${{ inputs.workflowToken }}"               '{workflowToken: $workflowToken}')"
+
+          while IFS= read -r -d '' file; do
+            RELATIVE_PATH="${file#${{ inputs.outputDirectory }}/}"
+            CONTENT_TYPE=$(file --mime-type -b "$file")
+            CONTENT_BASE64_FILE=$(mktemp)
+            base64 < "$file" | tr -d '
+' > "$CONTENT_BASE64_FILE"
+
+            jq -n               --arg workflowToken "${{ inputs.workflowToken }}"               --arg path "$RELATIVE_PATH"               --arg contentType "$CONTENT_TYPE"               --rawfile contentBase64 "$CONTENT_BASE64_FILE"               '{
+                workflowToken: $workflowToken,
+                path: $path,
+                contentType: $contentType,
+                contentBase64: $contentBase64
+              }'               | curl -fsSL -X POST "${{ inputs.previewUploadUrl }}"                 -H "Content-Type: application/json"                 --data-binary @-
+
+            rm -f "$CONTENT_BASE64_FILE"
+          done < <(find "${{ inputs.outputDirectory }}" -type f -print0)
+
+      - name: Create or update pull request
+        id: pull_request
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          API_URL="https://api.github.com/repos/${{ github.repository }}"
+          HEAD_REF="${{ github.repository_owner }}:$EMILA_BRANCH"
+          PR_JSON=$(curl -fsSL             -H "Authorization: Bearer $GITHUB_TOKEN"             -H "Accept: application/vnd.github+json"             "$API_URL/pulls?state=open&head=$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$HEAD_REF")&base=${{ inputs.productionBranch }}")
+
+          PR_NUMBER=$(printf '%s' "$PR_JSON" | jq -r '.[0].number // ""')
+          PR_URL=$(printf '%s' "$PR_JSON" | jq -r '.[0].html_url // ""')
+
+          if [ -z "$PR_NUMBER" ]; then
+            AHEAD_COUNT=$(git rev-list --count "origin/${{ inputs.productionBranch }}..HEAD")
+
+            if [ "$AHEAD_COUNT" = "0" ]; then
+              echo "No commits ahead of ${{ inputs.productionBranch }}; skipping pull request creation."
+              echo "pull_request_number=" >> "$GITHUB_OUTPUT"
+              echo "pull_request_url=" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            CREATE_RESPONSE=$(curl -fsSL               -X POST               -H "Authorization: Bearer $GITHUB_TOKEN"               -H "Accept: application/vnd.github+json"               -H "Content-Type: application/json"               "$API_URL/pulls"               -d "$(jq -n                 --arg title "Emila: ${{ inputs.jobId }}"                 --arg head "$EMILA_BRANCH"                 --arg base "${{ inputs.productionBranch }}"                 --arg body "Automated Emila change thread for job ${{ inputs.jobId }}."                 '{title: $title, head: $head, base: $base, body: $body}')")
+            PR_NUMBER=$(printf '%s' "$CREATE_RESPONSE" | jq -r '.number // ""')
+            PR_URL=$(printf '%s' "$CREATE_RESPONSE" | jq -r '.html_url // ""')
+          fi
+
+          echo "pull_request_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "pull_request_url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Report preview result back to Emila
+        if: always()
+        shell: bash
+        run: |
+          STATUS=$(jq -r '.status // "preview_ready"' .emila/result.json)
+          SUMMARY=$(jq -r '.summary // "Content branch updated."' .emila/result.json)
+          AMBIGUITY=$(jq -r '.ambiguityReason // ""' .emila/result.json)
+          CHANGED_FILES=$(jq -c '.changedFiles // []' .emila/result.json)
+          COMMIT_SHA="${{ steps.commit.outputs.commit_sha }}"
+          if [ -z "$COMMIT_SHA" ]; then COMMIT_SHA="$(git rev-parse HEAD)"; fi
+
+          if [ "$STATUS" = "preview_ready" ] && [ "${{ steps.build_preview.outcome }}" != "success" ]; then
+            STATUS="failed"
+            SUMMARY="Preview build failed for ${{ inputs.outputDirectory }}."
+          fi
+
+          if [ "$STATUS" = "preview_ready" ] && [ "${{ steps.upload_preview.outcome }}" != "success" ]; then
+            STATUS="failed"
+            SUMMARY="Preview upload failed for job ${{ inputs.jobId }}."
+          fi
+
+          jq -n             --arg token "${{ inputs.platformCallbackToken }}"             --arg clientId "${{ inputs.clientId }}"             --arg jobId "${{ inputs.jobId }}"             --arg revisionId "${{ inputs.revisionId }}"             --arg workflowType "content_change"             --arg status "$STATUS"             --arg summary "$SUMMARY"             --arg branchName "${{ steps.commit.outputs.branch_name || env.EMILA_BRANCH }}"             --arg commitSha "$COMMIT_SHA"             --arg previewUrl "${{ inputs.previewUrl }}"             --arg pullRequestUrl "${{ steps.pull_request.outputs.pull_request_url }}"             --arg workflowRunId "${{ github.run_id }}"             --arg ambiguityReason "$AMBIGUITY"             --argjson pullRequestNumber "${{ steps.pull_request.outputs.pull_request_number || 'null' }}"             --argjson changedFiles "$CHANGED_FILES"             '{
+              token: $token,
+              clientId: $clientId,
+              jobId: $jobId,
+              revisionId: $revisionId,
+              workflowType: $workflowType,
+              status: $status,
+              summary: $summary,
+              changedFiles: $changedFiles,
+              branchName: $branchName,
+              commitSha: $commitSha,
+              previewUrl: $previewUrl,
+              pullRequestNumber: $pullRequestNumber,
+              pullRequestUrl: $pullRequestUrl,
+              workflowRunId: $workflowRunId,
+              ambiguityReason: $ambiguityReason
+            }'             | curl -fsSL -X POST "${{ inputs.platformCallbackUrl }}"               -H "Content-Type: application/json"               --data-binary @-
