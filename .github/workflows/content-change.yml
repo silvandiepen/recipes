@@ -125,8 +125,8 @@ jobs:
       - name: Seed fallback workflow result
         shell: bash
         run: |
-          mkdir -p .emila
-          cat <<'JSON' > .emila/result.json
+          mkdir -p /tmp/emila
+          cat <<'JSON' > /tmp/emila/result.json
           {
             "status": "ambiguous",
             "summary": "Emila did not receive a valid edit result from the AI endpoint.",
@@ -145,7 +145,7 @@ jobs:
           import json
           import os
 
-          with open(".emila/editable-paths.json", "w", encoding="utf-8") as handle:
+          with open("/tmp/emila/editable-paths.json", "w", encoding="utf-8") as handle:
               handle.write('${{ inputs.editablePaths }}')
 
           patterns = json.loads('${{ inputs.editablePaths }}')
@@ -166,22 +166,22 @@ jobs:
                   except UnicodeDecodeError:
                       continue
 
-          with open(".emila/files.json", "w", encoding="utf-8") as handle:
+          with open("/tmp/emila/files.json", "w", encoding="utf-8") as handle:
               json.dump(files, handle)
 
-          with open(".emila/repository-tree.json", "w", encoding="utf-8") as handle:
+          with open("/tmp/emila/repository-tree.json", "w", encoding="utf-8") as handle:
               json.dump(os.popen("git ls-files").read().splitlines(), handle)
           PY
 
       - name: Request Emila edit
         shell: bash
         run: |
-          jq -n             --arg workflowToken "${{ inputs.workflowToken }}"             --arg requestText "${{ inputs.requestText }}"             --slurpfile repositoryTree .emila/repository-tree.json             --slurpfile files .emila/files.json             '{
+          jq -n             --arg workflowToken "${{ inputs.workflowToken }}"             --arg requestText "${{ inputs.requestText }}"             --slurpfile repositoryTree /tmp/emila/repository-tree.json             --slurpfile files /tmp/emila/files.json             '{
               workflowToken: $workflowToken,
               requestText: $requestText,
               repositoryTree: ($repositoryTree[0] // []),
               files: ($files[0] // [])
-            }'             | curl -fsSL -X POST "${{ inputs.editRequestUrl }}"               -H "Content-Type: application/json"               --data-binary @-               > .emila/result.json
+            }'             | curl -fsSL -X POST "${{ inputs.editRequestUrl }}"               -H "Content-Type: application/json"               --data-binary @-               > /tmp/emila/result.json
 
       - name: Apply and commit Emila tasks
         id: commit
@@ -193,7 +193,7 @@ jobs:
           import subprocess
           from pathlib import Path
 
-          with open(".emila/result.json", "r", encoding="utf-8") as handle:
+          with open("/tmp/emila/result.json", "r", encoding="utf-8") as handle:
               result = json.load(handle)
 
           def run(command, *, check=True):
@@ -296,7 +296,7 @@ jobs:
               for file_path in task["changedFiles"]
               if run(["git", "cat-file", "-e", f"HEAD:{file_path}"], check=False).returncode == 0
           }.values())
-          with open(".emila/result.json", "w", encoding="utf-8") as handle:
+          with open("/tmp/emila/result.json", "w", encoding="utf-8") as handle:
               json.dump(result, handle)
 
           run(["git", "push", "origin", f"HEAD:{os.environ['EMILA_BRANCH']}"])
@@ -314,7 +314,7 @@ jobs:
         id: build_preview
         shell: bash
         run: |
-          STATUS=$(jq -r '.status // "preview_ready"' .emila/result.json)
+          STATUS=$(jq -r '.status // "preview_ready"' /tmp/emila/result.json)
 
           if [ "$STATUS" != "preview_ready" ]; then
             echo "Skipping preview build because workflow status is $STATUS."
@@ -362,7 +362,7 @@ jobs:
           jq -n             --arg outputDirectory "${{ inputs.outputDirectory }}"             --arg entrypoint "$PREVIEW_ENTRYPOINT"             '{
               outputDirectory: $outputDirectory,
               entrypoint: $entrypoint
-            }' > .emila/preview-upload.json
+            }' > /tmp/emila/preview-upload.json
 
       - name: Upload preview assets
         id: upload_preview
@@ -373,7 +373,7 @@ jobs:
           PREVIEW_UPLOAD_URL: ${{ inputs.previewUploadUrl }}
           WORKFLOW_TOKEN: ${{ inputs.workflowToken }}
         run: |
-          STATUS=$(jq -r '.status // "preview_ready"' .emila/result.json)
+          STATUS=$(jq -r '.status // "preview_ready"' /tmp/emila/result.json)
 
           if [ "$STATUS" != "preview_ready" ]; then
             echo "Skipping preview upload because workflow status is $STATUS."
@@ -393,7 +393,7 @@ jobs:
           workflow_token = os.environ["WORKFLOW_TOKEN"]
           preview_reset_url = os.environ["PREVIEW_RESET_URL"]
           preview_upload_url = os.environ["PREVIEW_UPLOAD_URL"]
-          metadata_path = Path(".emila/preview-upload.json")
+          metadata_path = Path("/tmp/emila/preview-upload.json")
           metadata = {}
 
           if metadata_path.exists():
@@ -445,13 +445,13 @@ jobs:
         if: always()
         shell: bash
         run: |
-          STATUS=$(jq -r '.status // "preview_ready"' .emila/result.json 2>/dev/null || printf 'failed')
-          SUMMARY=$(jq -r '.summary // "Content branch updated."' .emila/result.json 2>/dev/null || printf 'Emila workflow result could not be parsed.')
-          AMBIGUITY=$(jq -r '.ambiguityReason // ""' .emila/result.json 2>/dev/null || printf '')
-          CHANGED_FILES=$(jq -c '.changedFiles // []' .emila/result.json 2>/dev/null || printf '[]')
-          TASKS=$(jq -c '.tasks // []' .emila/result.json 2>/dev/null || printf '[]')
-          PREVIEW_ASSET_COUNT=$(jq -r '.assetCount // 0' .emila/preview-upload.json 2>/dev/null || printf '0')
-          PREVIEW_ENTRYPOINT=$(jq -r '.entrypoint // ""' .emila/preview-upload.json 2>/dev/null || printf '')
+          STATUS=$(jq -r '.status // "preview_ready"' /tmp/emila/result.json 2>/dev/null || printf 'failed')
+          SUMMARY=$(jq -r '.summary // "Content branch updated."' /tmp/emila/result.json 2>/dev/null || printf 'Emila workflow result could not be parsed.')
+          AMBIGUITY=$(jq -r '.ambiguityReason // ""' /tmp/emila/result.json 2>/dev/null || printf '')
+          CHANGED_FILES=$(jq -c '.changedFiles // []' /tmp/emila/result.json 2>/dev/null || printf '[]')
+          TASKS=$(jq -c '.tasks // []' /tmp/emila/result.json 2>/dev/null || printf '[]')
+          PREVIEW_ASSET_COUNT=$(jq -r '.assetCount // 0' /tmp/emila/preview-upload.json 2>/dev/null || printf '0')
+          PREVIEW_ENTRYPOINT=$(jq -r '.entrypoint // ""' /tmp/emila/preview-upload.json 2>/dev/null || printf '')
           PULL_REQUEST_NUMBER="${{ steps.pull_request.outputs.pull_request_number }}"
           COMMIT_SHA="${{ steps.commit.outputs.commit_sha }}"
           if [ -z "$COMMIT_SHA" ]; then COMMIT_SHA="$(git rev-parse HEAD)"; fi
