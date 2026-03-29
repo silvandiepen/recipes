@@ -85,14 +85,42 @@ jobs:
           node-version: 25
 
       - name: Prepare content branch
+        id: prepare_branch
         shell: bash
         run: |
+          git config user.name "emila.dev"
+          git config user.email "content@emila.dev"
           git fetch origin "${{ inputs.productionBranch }}" "$EMILA_BRANCH" || true
           if git show-ref --verify --quiet "refs/remotes/origin/$EMILA_BRANCH"; then
             git checkout -B "$EMILA_BRANCH" "origin/$EMILA_BRANCH"
           else
             git checkout -B "$EMILA_BRANCH" "origin/${{ inputs.productionBranch }}"
+            git commit --allow-empty -m "chore(Job): open Emila thread for ${{ inputs.jobId }}"
+            git push origin "HEAD:$EMILA_BRANCH"
           fi
+          echo "branch_name=$EMILA_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update pull request
+        id: pull_request
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          API_URL="https://api.github.com/repos/${{ github.repository }}"
+          HEAD_REF="${{ github.repository_owner }}:$EMILA_BRANCH"
+          PR_JSON=$(curl -fsSL             -H "Authorization: Bearer $GITHUB_TOKEN"             -H "Accept: application/vnd.github+json"             "$API_URL/pulls?state=open&head=$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$HEAD_REF")&base=${{ inputs.productionBranch }}")
+
+          PR_NUMBER=$(printf '%s' "$PR_JSON" | jq -r '.[0].number // ""')
+          PR_URL=$(printf '%s' "$PR_JSON" | jq -r '.[0].html_url // ""')
+
+          if [ -z "$PR_NUMBER" ]; then
+            CREATE_RESPONSE=$(curl -fsSL               -X POST               -H "Authorization: Bearer $GITHUB_TOKEN"               -H "Accept: application/vnd.github+json"               -H "Content-Type: application/json"               "$API_URL/pulls"               -d "$(jq -n                 --arg title "Emila: ${{ inputs.jobId }}"                 --arg head "$EMILA_BRANCH"                 --arg base "${{ inputs.productionBranch }}"                 --arg body "Automated Emila change thread for job ${{ inputs.jobId }}."                 '{title: $title, head: $head, base: $base, body: $body}')")
+            PR_NUMBER=$(printf '%s' "$CREATE_RESPONSE" | jq -r '.number // ""')
+            PR_URL=$(printf '%s' "$CREATE_RESPONSE" | jq -r '.html_url // ""')
+          fi
+
+          echo "pull_request_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "pull_request_url=$PR_URL" >> "$GITHUB_OUTPUT"
 
       - name: Seed fallback workflow result
         shell: bash
@@ -103,6 +131,7 @@ jobs:
             "status": "ambiguous",
             "summary": "Emila did not receive a valid edit result from the AI endpoint.",
             "changedFiles": [],
+            "tasks": [],
             "files": [],
             "ambiguityReason": "AI edit request did not complete."
           }
@@ -154,38 +183,132 @@ jobs:
               files: ($files[0] // [])
             }'             | curl -fsSL -X POST "${{ inputs.editRequestUrl }}"               -H "Content-Type: application/json"               --data-binary @-               > .emila/result.json
 
-      - name: Apply Emila file changes
+      - name: Apply and commit Emila tasks
+        id: commit
         shell: bash
         run: |
           python3 <<'PY'
           import json
           import os
+          import subprocess
+          from pathlib import Path
 
           with open(".emila/result.json", "r", encoding="utf-8") as handle:
               result = json.load(handle)
 
-          for file in result.get("files", []):
-              path = file["path"]
-              os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-              with open(path, "w", encoding="utf-8") as file_handle:
-                  file_handle.write(file["content"])
+          def run(command, *, check=True):
+              return subprocess.run(command, check=check)
+
+          def capture(command):
+              return subprocess.check_output(command, text=True).strip()
+
+          def has_staged_changes():
+              return run(["git", "diff", "--cached", "--quiet"], check=False).returncode != 0
+
+          def dedupe_paths(paths):
+              return list(dict.fromkeys(path for path in paths if isinstance(path, str) and path))
+
+          def build_fallback_task():
+              files = [
+                  {
+                      "path": file["path"],
+                      "content": file["content"]
+                  }
+                  for file in result.get("files", [])
+                  if isinstance(file, dict) and isinstance(file.get("path"), str) and isinstance(file.get("content"), str)
+              ]
+
+              if not files:
+                  return []
+
+              return [{
+                  "title": result.get("summary") or "Requested change",
+                  "summary": result.get("summary") or "Requested change",
+                  "commitMessage": "feat(Content): Apply requested update",
+                  "files": files
+              }]
+
+          tasks = result.get("tasks")
+
+          if not isinstance(tasks, list):
+              tasks = build_fallback_task()
+
+          normalized_tasks = []
+
+          for index, task in enumerate(tasks, start=1):
+              if not isinstance(task, dict):
+                  continue
+
+              files = [
+                  {
+                      "path": file["path"],
+                      "content": file["content"]
+                  }
+                  for file in task.get("files", [])
+                  if isinstance(file, dict) and isinstance(file.get("path"), str) and isinstance(file.get("content"), str)
+              ]
+
+              if not files:
+                  continue
+
+              title = str(task.get("title") or f"Task {index}").strip()
+              summary = str(task.get("summary") or title).strip()
+              commit_message = str(task.get("commitMessage") or f"feat(Content): {title}").strip()
+
+              normalized_tasks.append({
+                  "title": title,
+                  "summary": summary,
+                  "commitMessage": commit_message,
+                  "changedFiles": dedupe_paths([file["path"] for file in files]),
+                  "commitSha": "",
+                  "files": files
+              })
+
+          committed_anything = False
+
+          for task in normalized_tasks:
+              for file in task["files"]:
+                  path = file["path"]
+                  Path(path).parent.mkdir(parents=True, exist_ok=True)
+                  Path(path).write_text(file["content"], encoding="utf-8")
+
+              run(["git", "add", "-A"])
+
+              if not has_staged_changes():
+                  continue
+
+              run(["git", "commit", "-m", task["commitMessage"]])
+              task["commitSha"] = capture(["git", "rev-parse", "HEAD"])
+              committed_anything = True
+
+          result["tasks"] = normalized_tasks
+          result["changedFiles"] = dedupe_paths([
+              file_path
+              for task in normalized_tasks
+              for file_path in task["changedFiles"]
+          ])
+          result["files"] = list({
+              file_path: {
+                  "path": file_path,
+                  "content": capture(["git", "show", f"HEAD:{file_path}"])
+              }
+              for task in normalized_tasks
+              for file_path in task["changedFiles"]
+              if run(["git", "cat-file", "-e", f"HEAD:{file_path}"], check=False).returncode == 0
+          }.values())
+          with open(".emila/result.json", "w", encoding="utf-8") as handle:
+              json.dump(result, handle)
+
+          run(["git", "push", "origin", f"HEAD:{os.environ['EMILA_BRANCH']}"])
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"branch_name={os.environ['EMILA_BRANCH']}
+")
+              handle.write(f"commit_sha={capture(['git', 'rev-parse', 'HEAD'])}
+")
+              handle.write(f"committed={'true' if committed_anything else 'false'}
+")
           PY
-
-      - name: Commit and push if content changed
-        id: commit
-        shell: bash
-        run: |
-          git config user.name "emila.dev"
-          git config user.email "content@emila.dev"
-
-          if ! git diff --quiet; then
-            git add -A
-            git commit -m "chore(content): apply email request for ${{ inputs.clientId }} ${{ inputs.jobId }}"
-          fi
-
-          git push origin "HEAD:$EMILA_BRANCH"
-          echo "branch_name=$EMILA_BRANCH" >> "$GITHUB_OUTPUT"
-          echo "commit_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Build preview output
         id: build_preview
@@ -228,9 +351,27 @@ jobs:
             exit 1
           fi
 
+          if [ -f "${{ inputs.outputDirectory }}/index.html" ]; then
+            PREVIEW_ENTRYPOINT="index.html"
+          elif [ -f "${{ inputs.outputDirectory }}/index.htm" ]; then
+            PREVIEW_ENTRYPOINT="index.htm"
+          else
+            PREVIEW_ENTRYPOINT=""
+          fi
+
+          jq -n             --arg outputDirectory "${{ inputs.outputDirectory }}"             --arg entrypoint "$PREVIEW_ENTRYPOINT"             '{
+              outputDirectory: $outputDirectory,
+              entrypoint: $entrypoint
+            }' > .emila/preview-upload.json
+
       - name: Upload preview assets
         id: upload_preview
         shell: bash
+        env:
+          OUTPUT_DIR: ${{ inputs.outputDirectory }}
+          PREVIEW_RESET_URL: ${{ inputs.previewResetUrl }}
+          PREVIEW_UPLOAD_URL: ${{ inputs.previewUploadUrl }}
+          WORKFLOW_TOKEN: ${{ inputs.workflowToken }}
         run: |
           STATUS=$(jq -r '.status // "preview_ready"' .emila/result.json)
 
@@ -239,66 +380,89 @@ jobs:
             exit 0
           fi
 
-          curl -fsSL -X POST "${{ inputs.previewResetUrl }}"             -H "Content-Type: application/json"             -d "$(jq -n               --arg workflowToken "${{ inputs.workflowToken }}"               '{workflowToken: $workflowToken}')"
+          python3 <<'PY'
+          import base64
+          import json
+          import mimetypes
+          import os
+          from pathlib import Path
+          from urllib.error import HTTPError
+          from urllib.request import Request, urlopen
 
-          while IFS= read -r -d '' file; do
-            RELATIVE_PATH="${file#${{ inputs.outputDirectory }}/}"
-            CONTENT_TYPE=$(file --mime-type -b "$file")
-            CONTENT_BASE64_FILE=$(mktemp)
-            base64 < "$file" | tr -d '
-' > "$CONTENT_BASE64_FILE"
+          output_dir = Path(os.environ["OUTPUT_DIR"])
+          workflow_token = os.environ["WORKFLOW_TOKEN"]
+          preview_reset_url = os.environ["PREVIEW_RESET_URL"]
+          preview_upload_url = os.environ["PREVIEW_UPLOAD_URL"]
+          metadata_path = Path(".emila/preview-upload.json")
+          metadata = {}
 
-            jq -n               --arg workflowToken "${{ inputs.workflowToken }}"               --arg path "$RELATIVE_PATH"               --arg contentType "$CONTENT_TYPE"               --rawfile contentBase64 "$CONTENT_BASE64_FILE"               '{
-                workflowToken: $workflowToken,
-                path: $path,
-                contentType: $contentType,
-                contentBase64: $contentBase64
-              }'               | curl -fsSL -X POST "${{ inputs.previewUploadUrl }}"                 -H "Content-Type: application/json"                 --data-binary @-
+          if metadata_path.exists():
+              metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
 
-            rm -f "$CONTENT_BASE64_FILE"
-          done < <(find "${{ inputs.outputDirectory }}" -type f -print0)
+          def post_json(url, payload):
+              request = Request(
+                  url,
+                  data=json.dumps(payload).encode("utf-8"),
+                  headers={
+                      "Accept": "application/json",
+                      "Content-Type": "application/json",
+                      "User-Agent": "emila-workflow/1.0"
+                  },
+                  method="POST"
+              )
+              try:
+                  with urlopen(request) as response:
+                      response.read()
+              except HTTPError as error:
+                  body = error.read().decode("utf-8", errors="replace")
+                  raise RuntimeError(f"{error.code} {error.reason}: {body}") from error
 
-      - name: Create or update pull request
-        id: pull_request
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          API_URL="https://api.github.com/repos/${{ github.repository }}"
-          HEAD_REF="${{ github.repository_owner }}:$EMILA_BRANCH"
-          PR_JSON=$(curl -fsSL             -H "Authorization: Bearer $GITHUB_TOKEN"             -H "Accept: application/vnd.github+json"             "$API_URL/pulls?state=open&head=$(python3 -c 'import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=""))' "$HEAD_REF")&base=${{ inputs.productionBranch }}")
+          post_json(preview_reset_url, {
+              "workflowToken": workflow_token
+          })
 
-          PR_NUMBER=$(printf '%s' "$PR_JSON" | jq -r '.[0].number // ""')
-          PR_URL=$(printf '%s' "$PR_JSON" | jq -r '.[0].html_url // ""')
+          asset_count = 0
+          for file_path in output_dir.rglob("*"):
+              if not file_path.is_file():
+                  continue
 
-          if [ -z "$PR_NUMBER" ]; then
-            AHEAD_COUNT=$(git rev-list --count "origin/${{ inputs.productionBranch }}..HEAD")
+              content_type = mimetypes.guess_type(file_path.name)[0] or "application/octet-stream"
+              content_base64 = base64.b64encode(file_path.read_bytes()).decode("ascii")
 
-            if [ "$AHEAD_COUNT" = "0" ]; then
-              echo "No commits ahead of ${{ inputs.productionBranch }}; skipping pull request creation."
-              echo "pull_request_number=" >> "$GITHUB_OUTPUT"
-              echo "pull_request_url=" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
+              post_json(preview_upload_url, {
+                  "workflowToken": workflow_token,
+                  "path": file_path.relative_to(output_dir).as_posix(),
+                  "contentType": content_type,
+                  "contentBase64": content_base64
+              })
+              asset_count += 1
 
-            CREATE_RESPONSE=$(curl -fsSL               -X POST               -H "Authorization: Bearer $GITHUB_TOKEN"               -H "Accept: application/vnd.github+json"               -H "Content-Type: application/json"               "$API_URL/pulls"               -d "$(jq -n                 --arg title "Emila: ${{ inputs.jobId }}"                 --arg head "$EMILA_BRANCH"                 --arg base "${{ inputs.productionBranch }}"                 --arg body "Automated Emila change thread for job ${{ inputs.jobId }}."                 '{title: $title, head: $head, base: $base, body: $body}')")
-            PR_NUMBER=$(printf '%s' "$CREATE_RESPONSE" | jq -r '.number // ""')
-            PR_URL=$(printf '%s' "$CREATE_RESPONSE" | jq -r '.html_url // ""')
-          fi
-
-          echo "pull_request_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-          echo "pull_request_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          metadata["assetCount"] = asset_count
+          metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+          PY
 
       - name: Report preview result back to Emila
         if: always()
         shell: bash
         run: |
-          STATUS=$(jq -r '.status // "preview_ready"' .emila/result.json)
-          SUMMARY=$(jq -r '.summary // "Content branch updated."' .emila/result.json)
-          AMBIGUITY=$(jq -r '.ambiguityReason // ""' .emila/result.json)
-          CHANGED_FILES=$(jq -c '.changedFiles // []' .emila/result.json)
+          STATUS=$(jq -r '.status // "preview_ready"' .emila/result.json 2>/dev/null || printf 'failed')
+          SUMMARY=$(jq -r '.summary // "Content branch updated."' .emila/result.json 2>/dev/null || printf 'Emila workflow result could not be parsed.')
+          AMBIGUITY=$(jq -r '.ambiguityReason // ""' .emila/result.json 2>/dev/null || printf '')
+          CHANGED_FILES=$(jq -c '.changedFiles // []' .emila/result.json 2>/dev/null || printf '[]')
+          TASKS=$(jq -c '.tasks // []' .emila/result.json 2>/dev/null || printf '[]')
+          PREVIEW_ASSET_COUNT=$(jq -r '.assetCount // 0' .emila/preview-upload.json 2>/dev/null || printf '0')
+          PREVIEW_ENTRYPOINT=$(jq -r '.entrypoint // ""' .emila/preview-upload.json 2>/dev/null || printf '')
+          PULL_REQUEST_NUMBER="${{ steps.pull_request.outputs.pull_request_number }}"
           COMMIT_SHA="${{ steps.commit.outputs.commit_sha }}"
           if [ -z "$COMMIT_SHA" ]; then COMMIT_SHA="$(git rev-parse HEAD)"; fi
+
+          if [ "$STATUS" = "preview_ready" ]; then
+            SUMMARY="$SUMMARY Preview uploaded ${PREVIEW_ASSET_COUNT} assets from ${{ inputs.outputDirectory }}."
+
+            if [ -z "$PREVIEW_ENTRYPOINT" ]; then
+              SUMMARY="$SUMMARY No root index file was uploaded, so Emila will show a preview file listing."
+            fi
+          fi
 
           if [ "$STATUS" = "preview_ready" ] && [ "${{ steps.build_preview.outcome }}" != "success" ]; then
             STATUS="failed"
@@ -307,10 +471,10 @@ jobs:
 
           if [ "$STATUS" = "preview_ready" ] && [ "${{ steps.upload_preview.outcome }}" != "success" ]; then
             STATUS="failed"
-            SUMMARY="Preview upload failed for job ${{ inputs.jobId }}."
+            SUMMARY="Preview upload failed for job ${{ inputs.jobId }}. Check the Upload preview assets step in GitHub Actions for the exact API error."
           fi
 
-          jq -n             --arg token "${{ inputs.platformCallbackToken }}"             --arg clientId "${{ inputs.clientId }}"             --arg jobId "${{ inputs.jobId }}"             --arg revisionId "${{ inputs.revisionId }}"             --arg workflowType "content_change"             --arg status "$STATUS"             --arg summary "$SUMMARY"             --arg branchName "${{ steps.commit.outputs.branch_name || env.EMILA_BRANCH }}"             --arg commitSha "$COMMIT_SHA"             --arg previewUrl "${{ inputs.previewUrl }}"             --arg pullRequestUrl "${{ steps.pull_request.outputs.pull_request_url }}"             --arg workflowRunId "${{ github.run_id }}"             --arg ambiguityReason "$AMBIGUITY"             --argjson pullRequestNumber "${{ steps.pull_request.outputs.pull_request_number || 'null' }}"             --argjson changedFiles "$CHANGED_FILES"             '{
+          jq -n             --arg token "${{ inputs.platformCallbackToken }}"             --arg clientId "${{ inputs.clientId }}"             --arg jobId "${{ inputs.jobId }}"             --arg revisionId "${{ inputs.revisionId }}"             --arg workflowType "content_change"             --arg status "$STATUS"             --arg summary "$SUMMARY"             --arg branchName "${{ steps.commit.outputs.branch_name || env.EMILA_BRANCH }}"             --arg commitSha "$COMMIT_SHA"             --arg previewUrl "${{ inputs.previewUrl }}"             --arg pullRequestUrl "${{ steps.pull_request.outputs.pull_request_url }}"             --arg workflowRunId "${{ github.run_id }}"             --arg ambiguityReason "$AMBIGUITY"             --arg pullRequestNumber "$PULL_REQUEST_NUMBER"             --arg changedFiles "$CHANGED_FILES"             --arg tasks "$TASKS"             '{
               token: $token,
               clientId: $clientId,
               jobId: $jobId,
@@ -318,11 +482,12 @@ jobs:
               workflowType: $workflowType,
               status: $status,
               summary: $summary,
-              changedFiles: $changedFiles,
+              changedFiles: ($changedFiles | try fromjson catch []),
+              tasks: ($tasks | try fromjson catch []),
               branchName: $branchName,
               commitSha: $commitSha,
               previewUrl: $previewUrl,
-              pullRequestNumber: $pullRequestNumber,
+              pullRequestNumber: ($pullRequestNumber | if . == "" then null else try tonumber catch null end),
               pullRequestUrl: $pullRequestUrl,
               workflowRunId: $workflowRunId,
               ambiguityReason: $ambiguityReason
