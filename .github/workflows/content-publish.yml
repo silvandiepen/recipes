@@ -53,46 +53,29 @@ permissions:
 jobs:
   publish-content:
     runs-on: ubuntu-latest
+    env:
+      CLIENT_ID: ${{ inputs.clientId }}
+      JOB_ID: ${{ inputs.jobId }}
+      REVISION_ID: ${{ inputs.revisionId }}
+      SENDER_EMAIL: ${{ inputs.senderEmail }}
+      CONTENT_BRANCH: ${{ inputs.contentBranch }}
+      PRODUCTION_BRANCH: ${{ inputs.productionBranch }}
+      COMMIT_SHA: ${{ inputs.commitSha }}
+      PREVIEW_URL: ${{ inputs.previewUrl }}
+      BRANCH_NAME: ${{ inputs.branchName }}
+      PULL_REQUEST_NUMBER: ${{ inputs.pullRequestNumber }}
+      PULL_REQUEST_URL: ${{ inputs.pullRequestUrl }}
+      WORKFLOW_TOKEN: ${{ inputs.workflowToken }}
+      PLATFORM_CALLBACK_URL: ${{ inputs.platformCallbackUrl }}
+      PLATFORM_CALLBACK_TOKEN: ${{ inputs.platformCallbackToken }}
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      GITHUB_RUN_ID: ${{ github.run_id }}
     steps:
-      - name: Merge Emila pull request
-        id: publish
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/checkout@v4
+
+      - name: Download Emila publish workflow script
         run: |
-          RESPONSE=$(curl -fsSL             -X PUT             -H "Authorization: Bearer $GITHUB_TOKEN"             -H "Accept: application/vnd.github+json"             -H "Content-Type: application/json"             "https://api.github.com/repos/${{ github.repository }}/pulls/${{ inputs.pullRequestNumber }}/merge"             -d "$(jq -n               --arg commit_title "Emila: publish ${{ inputs.jobId }}"               --arg merge_method "squash"               '{commit_title: $commit_title, merge_method: $merge_method}')")
-
-          COMMIT_SHA=$(printf '%s' "$RESPONSE" | jq -r '.sha // empty')
-          if [ -z "$COMMIT_SHA" ]; then COMMIT_SHA="${{ inputs.commitSha }}"; fi
-          echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
-
-      - name: Report publish result back to Emila
-        if: always()
-        shell: bash
-        run: |
-          STATUS="published"
-          PULL_REQUEST_NUMBER="${{ inputs.pullRequestNumber }}"
-          SUMMARY="Merged pull request #$PULL_REQUEST_NUMBER into ${{ inputs.productionBranch }}."
-          if [ "${{ steps.publish.outcome }}" != "success" ]; then
-            STATUS="failed"
-            SUMMARY="Publish workflow failed while merging pull request #$PULL_REQUEST_NUMBER into ${{ inputs.productionBranch }}."
-          fi
-
-          jq -n             --arg token "${{ inputs.platformCallbackToken }}"             --arg clientId "${{ inputs.clientId }}"             --arg jobId "${{ inputs.jobId }}"             --arg revisionId "${{ inputs.revisionId }}"             --arg workflowType "content_publish"             --arg status "$STATUS"             --arg summary "$SUMMARY"             --arg branchName "${{ inputs.branchName }}"             --arg commitSha "${{ steps.publish.outputs.commit_sha || inputs.commitSha }}"             --arg previewUrl "${{ inputs.previewUrl }}"             --arg pullRequestUrl "${{ inputs.pullRequestUrl }}"             --arg workflowRunId "${{ github.run_id }}"             --arg ambiguityReason ""             --arg pullRequestNumber "$PULL_REQUEST_NUMBER"             '{
-              token: $token,
-              clientId: $clientId,
-              jobId: $jobId,
-              revisionId: $revisionId,
-              workflowType: $workflowType,
-              status: $status,
-              summary: $summary,
-              changedFiles: [],
-              tasks: [],
-              branchName: $branchName,
-              commitSha: $commitSha,
-              previewUrl: $previewUrl,
-              pullRequestNumber: ($pullRequestNumber | if . == "" then null else try tonumber catch null end),
-              pullRequestUrl: $pullRequestUrl,
-              workflowRunId: $workflowRunId,
-              ambiguityReason: $ambiguityReason
-            }'             | curl -fsSL -X POST "${{ inputs.platformCallbackUrl }}"               -H "Content-Type: application/json"               --data-binary @-
+          curl -fsSL https://cdn.emila.dev/workflows/content-publish.sh -o /tmp/emila-content-publish.sh
+          chmod +x /tmp/emila-content-publish.sh
+          /tmp/emila-content-publish.sh
