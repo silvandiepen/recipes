@@ -80,8 +80,7 @@ jobs:
         run: |
           set -euo pipefail
           if ! curl --retry 3 --retry-delay 2 --retry-all-errors -fsSL https://cdn.emila.dev/workflows/content-publish.sh -o /tmp/emila-content-publish.sh; then
-            printf '%s
-' "EMILA_BOOTSTRAP_FAILURE_SUMMARY=Failed to download Emila publish workflow script from https://cdn.emila.dev/workflows/content-publish.sh. Check the GitHub Actions log for the curl error." >> "$GITHUB_ENV"
+            printf '%s\n' "EMILA_BOOTSTRAP_FAILURE_SUMMARY=Failed to download Emila publish workflow script from https://cdn.emila.dev/workflows/content-publish.sh. Check the GitHub Actions log for the curl error." >> "$GITHUB_ENV"
             exit 1
           fi
           chmod +x /tmp/emila-content-publish.sh
@@ -100,7 +99,22 @@ jobs:
             summary="Emila publish workflow bootstrap failed before the workflow script could start. Check the GitHub Actions log for the failing step."
           fi
 
-          jq -n             --arg token "$PLATFORM_CALLBACK_TOKEN"             --arg clientId "$CLIENT_ID"             --arg jobId "$JOB_ID"             --arg revisionId "$REVISION_ID"             --arg workflowType "content_publish"             --arg status "failed"             --arg summary "$summary"             --arg branchName "$CONTENT_BRANCH"             --arg commitSha ""             --arg previewUrl "$PREVIEW_URL"             --arg pullRequestUrl "$PULL_REQUEST_URL"             --arg workflowRunId "$GITHUB_RUN_ID"             --arg ambiguityReason ""             --arg pullRequestNumber "$PULL_REQUEST_NUMBER"             '{
+          jq -n \
+            --arg token "$PLATFORM_CALLBACK_TOKEN" \
+            --arg clientId "$CLIENT_ID" \
+            --arg jobId "$JOB_ID" \
+            --arg revisionId "$REVISION_ID" \
+            --arg workflowType "content_publish" \
+            --arg status "failed" \
+            --arg summary "$summary" \
+            --arg branchName "$CONTENT_BRANCH" \
+            --arg commitSha "" \
+            --arg previewUrl "$PREVIEW_URL" \
+            --arg pullRequestUrl "$PULL_REQUEST_URL" \
+            --arg workflowRunId "$GITHUB_RUN_ID" \
+            --arg ambiguityReason "" \
+            --arg pullRequestNumber "$PULL_REQUEST_NUMBER" \
+            '{
               token: $token,
               clientId: $clientId,
               jobId: $jobId,
@@ -117,4 +131,7 @@ jobs:
               pullRequestUrl: $pullRequestUrl,
               workflowRunId: $workflowRunId,
               ambiguityReason: $ambiguityReason
-            }'             | curl --retry 3 --retry-delay 2 --retry-all-errors -fsSL -X POST "$PLATFORM_CALLBACK_URL"               -H "Content-Type: application/json"               --data-binary @-
+            }' \
+            | curl --retry 3 --retry-delay 2 --retry-all-errors -fsSL -X POST "$PLATFORM_CALLBACK_URL" \
+              -H "Content-Type: application/json" \
+              --data-binary @-
