@@ -101,7 +101,46 @@ jobs:
           fetch-depth: 0
 
       - name: Download Emila content workflow script
+        id: download_emila_content_script
+        shell: bash
         run: |
-          curl -fsSL https://cdn.emila.dev/workflows/content-change.sh -o /tmp/emila-content-change.sh
+          set -euo pipefail
+          if ! curl --retry 3 --retry-delay 2 --retry-all-errors -fsSL https://cdn.emila.dev/workflows/content-change.sh -o /tmp/emila-content-change.sh; then
+            printf '%s
+' "EMILA_BOOTSTRAP_FAILURE_SUMMARY=Failed to download Emila content workflow script from https://cdn.emila.dev/workflows/content-change.sh. Check the GitHub Actions log for the curl error." >> "$GITHUB_ENV"
+            exit 1
+          fi
           chmod +x /tmp/emila-content-change.sh
+
+      - name: Run Emila content workflow script
+        shell: bash
+        run: |
           /tmp/emila-content-change.sh
+
+      - name: Report content workflow bootstrap failure
+        if: ${{ always() && steps.download_emila_content_script.outcome == 'failure' }}
+        shell: bash
+        run: |
+          summary="$EMILA_BOOTSTRAP_FAILURE_SUMMARY"
+          if [ -z "$summary" ]; then
+            summary="Emila content workflow bootstrap failed before the workflow script could start. Check the GitHub Actions log for the failing step."
+          fi
+
+          jq -n             --arg token "$PLATFORM_CALLBACK_TOKEN"             --arg clientId "$CLIENT_ID"             --arg jobId "$JOB_ID"             --arg revisionId "$REVISION_ID"             --arg workflowType "content_change"             --arg status "failed"             --arg summary "$summary"             --arg branchName "$CONTENT_BRANCH"             --arg commitSha ""             --arg previewUrl ""             --arg pullRequestUrl ""             --arg workflowRunId "$GITHUB_RUN_ID"             --arg ambiguityReason ""             '{
+              token: $token,
+              clientId: $clientId,
+              jobId: $jobId,
+              revisionId: $revisionId,
+              workflowType: $workflowType,
+              status: $status,
+              summary: $summary,
+              changedFiles: [],
+              tasks: [],
+              branchName: $branchName,
+              commitSha: $commitSha,
+              previewUrl: $previewUrl,
+              pullRequestNumber: null,
+              pullRequestUrl: $pullRequestUrl,
+              workflowRunId: $workflowRunId,
+              ambiguityReason: $ambiguityReason
+            }'             | curl --retry 3 --retry-delay 2 --retry-all-errors -fsSL -X POST "$PLATFORM_CALLBACK_URL"               -H "Content-Type: application/json"               --data-binary @-
