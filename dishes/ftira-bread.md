@@ -9,13 +9,13 @@ Traditional Maltese flatbread, similar to a focaccia, often enjoyed with tomato 
 
 ## Ingredients
 
-- 500 g strong white flour
-- 1 tsp salt
-- 1 tsp sugar
-- 7 g instant dry yeast (1 packet)
-- 300 ml warm water
-- 2 tbsp olive oil (plus extra for drizzling)
-- Optional toppings: sliced tomatoes, olives, capers, grated cheese, fresh herbs
+- [ ] 500 g strong white flour
+- [ ] 1 tsp salt
+- [ ] 1 tsp sugar
+- [ ] 7 g instant dry yeast (1 packet)
+- [ ] 300 ml warm water
+- [ ] 2 tbsp olive oil (plus extra for drizzling)
+- [ ] Optional toppings: sliced tomatoes, olives, capers, grated cheese, fresh herbs
 
 ## Steps
 
