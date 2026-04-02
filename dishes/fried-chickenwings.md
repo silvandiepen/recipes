@@ -7,4 +7,4 @@ image: /assets/img/fried-chicken.jpg
 
 - [ ] Chickenwings
 - [ ] Chicken spices
-- [ ] Sunflower oil
+- [ ] Olive oil
