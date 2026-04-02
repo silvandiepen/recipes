@@ -9,20 +9,20 @@ A fragrant, spiced ring‑shaped cake traditionally prepared for Easter. It is f
 
 ## Ingredients
 
-- 300 g plain flour
-- 150 g unsalted butter, softened
-- 150 g caster sugar
-- 2 large eggs
-- 1 tsp orange zest
-- 1 tsp aniseed (ground)
-- 1 tsp mixed spice (cinnamon, nutmeg, cloves)
-- 2 tbsp dark rum (optional)
-- 1 tsp baking powder
-- Pinch of salt
-- **Glaze:**
-  - 100 g powdered sugar
-  - 1 tbsp milk
-  - ½ tsp cinnamon
+- [ ] 300 g plain flour
+- [ ] 150 g unsalted butter, softened
+- [ ] 150 g caster sugar
+- [ ] 2 large eggs
+- [ ] 1 tsp orange zest
+- [ ] 1 tsp aniseed (ground)
+- [ ] 1 tsp mixed spice (cinnamon, nutmeg, cloves)
+- [ ] 2 tbsp dark rum (optional)
+- [ ] 1 tsp baking powder
+- [ ] Pinch of salt
+- [ ] **Glaze:**
+  - [ ] 100 g powdered sugar
+  - [ ] 1 tbsp milk
+  - [ ] ½ tsp cinnamon
 
 ## Steps
 
