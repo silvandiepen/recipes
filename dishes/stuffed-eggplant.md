@@ -11,7 +11,7 @@ Our own and a little fresher take on a very typical Armenian dish.
 - [ ] Walnuts
 - [ ] Pomegranate
 - [ ] Garlic
-- [ ] Sunflower oil
+- [ ] Olive oil
 - [ ] creme fraiche
 - [ ] Mayonaisse
 - [ ] Black Pepper
