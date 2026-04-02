@@ -9,14 +9,14 @@ A rustic, slightly sour loaf that is a staple in Maltese households. It has a ch
 
 ## Ingredients
 
-- 600 g whole‑meal flour (or a mix of whole‑meal and white flour)
-- 400 g strong white flour
-- 2 tsp salt
-- 1 tsp sugar
-- 10 g fresh yeast (or 7 g instant dry yeast)
-- 500 ml lukewarm water
-- 2 tbsp olive oil
-- Optional: a handful of mixed seeds (sesame, sunflower, pumpkin) for topping
+- [ ] 600 g whole‑meal flour (or a mix of whole‑meal and white flour)
+- [ ] 400 g strong white flour
+- [ ] 2 tsp salt
+- [ ] 1 tsp sugar
+- [ ] 10 g fresh yeast (or 7 g instant dry yeast)
+- [ ] 500 ml lukewarm water
+- [ ] 2 tbsp olive oil
+- [ ] Optional: a handful of mixed seeds (sesame, sunflower, pumpkin) for topping
 
 ## Steps
 
