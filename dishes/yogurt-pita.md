@@ -2,13 +2,13 @@
 
 ### Ingredients
 
-- 1 cup warm water
-- 1 spoon sugar
-- 1 spoon dry yeast
-- 14x full spoon flour
-- 1 spoon salt
-- 1 spoon olive oil
-- 3x full spoon yogurt
+- [ ] 1 cup warm water
+- [ ] 1 spoon sugar
+- [ ] 1 spoon dry yeast
+- [ ] 14x full spoon flour
+- [ ] 1 spoon salt
+- [ ] 1 spoon olive oil
+- [ ] 3x full spoon yogurt
 
 ### Steps
 

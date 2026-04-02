@@ -1,5 +1,5 @@
 ---
-tags: dessert,dutch
+ tags: dessert,dutch
 image: /assets/img/poffertjes.jpg
 ---
 
@@ -7,8 +7,8 @@ image: /assets/img/poffertjes.jpg
 
 Poffertjes are tiny, fluffy Dutch pancakes that originated in the Netherlands in the 19th century. Traditionally cooked in a special pan with shallow indentations, they are served warm, dusted with powdered sugar and a pat of butter. They are a beloved treat at markets, fairs, and family gatherings.
 
-- [ ] 250 gr Flour
-- [ ] 400ml Milk
+- [ ] 250 g Flour
+- [ ] 400 ml Milk
 - [ ] 2 eggs
 - [ ] salt
 - [ ] 1 teaspoon baking powder
